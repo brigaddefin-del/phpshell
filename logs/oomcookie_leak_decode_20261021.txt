@@ -1,0 +1,6 @@
+oomcookie_leak_noaslr_20261021.resp: decoded=4000 ptrs=47 chunk_base=0x7ffff3e00000
+  first ptrs: 0x7ffff3fff400 0x7ffff3fff480 0x7ffff3fff4c0 0x7ffff3fff500
+oomcookie_leak_aslr_20261021.resp: decoded=4000 ptrs=47 chunk_base=0x7f9acd000000
+  first ptrs: 0x7f9acd1ff400 0x7f9acd1ff480 0x7f9acd1ff4c0 0x7f9acd1ff500
+config: php_admin_value display_errors 0 verified before/after
+repro: no-ASLR 3/3, ASLR-on 2/2 (display_errors=0)

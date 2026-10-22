@@ -1,0 +1,60 @@
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x00007ffff7dd2f63 in accept4 (fd=3, addr=..., addr_len=0x7fffffffe540, flags=524288) at ../sysdeps/unix/sysv/linux/accept4.c:31
+31	../sysdeps/unix/sysv/linux/accept4.c: 没有那个文件或目录.
+warning: File "/usr/lib/apache2/modules/libphp.so" auto-loading has been declined by your `auto-load safe-path' set to "$debugdir:$datadir/auto-load".
+To enable execution of this file add
+	add-auto-load-safe-path /usr/lib/apache2/modules/libphp.so
+line to your configuration file "/root/.config/gdb/gdbinit".
+To completely disable this security protection add
+	set auto-load safe-path /
+line to your configuration file "/root/.config/gdb/gdbinit".
+For more information about this security protection see the
+"Auto-loading safe path" section in the GDB manual.  E.g., run from the shell:
+	info "(gdb)Auto-loading safe path"
+Breakpoint 1 at 0x7ffff48c88a0: file /home/debian/php-lab/php-8.4.26/main/php_variables.c, line 787.
+Breakpoint 2 at 0x7ffff48c69c0: file /home/debian/php-lab/php-8.4.26/main/php_variables.c, line 813.
+Breakpoint 3 at 0x7ffff47ebfa8: file /home/debian/php-lab/php-8.4.26/ext/session/session.c, line 1428.
+Breakpoint 4 at 0x7ffff47eeef6: file /home/debian/php-lab/php-8.4.26/ext/session/mod_files.c, line 419.
+Breakpoint 5 at 0x7ffff48c9684: file /home/debian/php-lab/php-8.4.26/main/rfc1867.c, line 756.
+Breakpoint 6 at 0x7ffff47e9830: file /home/debian/php-lab/php-8.4.26/Zend/zend_types.h, line 650.
+Breakpoint 7 at 0x7ffff47ecc70: file /home/debian/php-lab/php-8.4.26/ext/session/session.c, line 421.
+Breakpoint 8 at 0x7ffff47ebe50: file /home/debian/php-lab/php-8.4.26/ext/session/session.c, line 1554.
+Breakpoint 9 at 0x7ffff457dcb8: file /home/debian/php-lab/php-8.4.26/Zend/zend_alloc.c, line 390.
+Breakpoint 10 at 0x7ffff7cee39f: file ./stdlib/abort.c, line 49.
+Breakpoint 11 at 0x7ffff457dbc1: file /home/debian/php-lab/php-8.4.26/Zend/zend_alloc.c, line 411.
+MAPWATCH php_hash_environment chunkheap=0x7ffff5e00040 92:0 93:0 94:40000002 95:0 96:8000000a 97:80000005 98:80000004 99:0 100:0 101:0
+MAPWATCH php_auto_globals_create_post chunkheap=0x7ffff5e00040 92:0 93:0 94:40000002 95:0 96:8000000a 97:80000005 98:80000004 99:8000001c 100:c001001c 101:c002001c
+MP_BUFFER p=0x7ffff5e69000 base=0x7ffff5e00000 pg=105 chunk_heap=0x7ffff5e00040 match=1 info=0x40000002 bufsize=5120
+SESSION_INIT id=0x7ffff5e02240 len=1 send_cookie=0 mod=0x7ffff5564f20 use_cookies=1 strict=0 data=00007b434c11abe20100000016000000460c9b7c0100008004000000000000006e616d650011ab02
+OPEN_FILES new=p=0x7ffff5e7f500 base=0x7ffff5e00000 pg=127 chunk_heap=0x7ffff5e00040 match=1 info=0x80000004 
+PAGEMAP 88:0 89:0 90:0 91:0 92:0 93:0 94:40000002 95:0 96:8000000a 97:80000005 98:80000004 99:8000001c 100:c001001c 101:c002001c 102:c003001c 103:c004001c 104:80000008 105:40000002 106:0 107:8000000f 108:8000000c 109:80000002 110:8000000b 111:4000000a 112:0 113:0 114:0 115:0 chunkfree=0
+BIN15 free15=11 bins=[('0x7ffff3e00000:510', 11)]
+RESET_ID id=0x7ffff3fff000 len=32 send_cookie=1
+SEND_COOKIE id=0x7ffff3fff000 len=32 size=8253840 real=8388608 limit=8388608 free_pages=0 chunks=[0, 0, 0, 0] fs7=0x7ffff3fff040/63 fs9=0x0/0 fs11=0x0/0 fs12=0x7ffff5e6c140/23 fs15=0x7ffff3ffe500/11
+CHUNKADDR ['0x7ffff5e00000', '0x7ffff3e00000', '0x7ffff3c00000', '0x7ffff5c00000']
+MAPS=[(0, {1: 1, 3: 1, 6: 1, 16: 5, 20: 5, 10: 1, 5: 1, 4: 2, 28: 5, 8: 1, 15: 9, 12: 1, 2: 1, 11: 2, 24: 5}, 100, 371), (0, {15: 2, 7: 1}, 128, 381), (0, {15: 9}, 126, 377), (0, {15: 7}, 127, 378)]
+CACHED n=0 []
+MM_SAFE_ERROR real=8388608 limit=8388608 size=8253968
+PS_AT_OOM id=0x7ffff3fff000 len=32 send_cookie=1
+#0  zend_mm_safe_error (heap=heap@entry=0x7ffff5e00040, format=format@entry=0x7ffff5433798 "Allowed memory size of %zu bytes exhausted (tried to allocate %zu bytes)", limit=8388608, size=size@entry=4096) at /home/debian/php-lab/php-8.4.26/Zend/zend_alloc.c:411
+#1  0x00007ffff457dd29 in zend_mm_alloc_pages (heap=heap@entry=0x7ffff5e00040, pages_count=pages_count@entry=1) at /home/debian/php-lab/php-8.4.26/Zend/zend_alloc.c:1051
+#2  0x00007ffff49276b2 in zend_mm_alloc_small_slow (heap=0x7ffff5e00040, bin_num=11) at /home/debian/php-lab/php-8.4.26/Zend/zend_alloc.c:1349
+#3  0x00007ffff488d527 in zend_string_safe_alloc (persistent=false, l=0, m=32, n=3) at /home/debian/php-lab/php-8.4.26/Zend/zend_string.h:187
+#4  php_url_encode_impl (raw=false, len=32, s=0x7ffff3fff018 "fb135293d5a5f474b5f29a4ed50d27b8") at /home/debian/php-lab/php-8.4.26/ext/standard/url.c:457
+#5  php_url_encode (s=0x7ffff3fff018 "fb135293d5a5f474b5f29a4ed50d27b8", len=32) at /home/debian/php-lab/php-8.4.26/ext/standard/url.c:548
+#6  0x00007ffff47ebfd3 in php_session_send_cookie () at /home/debian/php-lab/php-8.4.26/ext/session/session.c:1447
+#7  php_session_reset_id () at /home/debian/php-lab/php-8.4.26/ext/session/session.c:1564
+#8  0x00007ffff47ecd0c in php_session_initialize () at /home/debian/php-lab/php-8.4.26/ext/session/session.c:475
+#9  0x00007ffff47ee308 in php_session_rfc1867_update (progress=0x7ffff5e6c000, force_update=<optimized out>) at /home/debian/php-lab/php-8.4.26/ext/session/session.c:3196
+#10 0x00007ffff47ee99c in php_session_rfc1867_callback (event=<optimized out>, event_data=0x7fffffffcc70, extra=<optimized out>) at /home/debian/php-lab/php-8.4.26/ext/session/session.c:3348
+#11 0x00007ffff48ca2ac in rfc1867_post_handler (content_type_dup=<optimized out>, arg=0x7fffffffe0f0) at /home/debian/php-lab/php-8.4.26/main/rfc1867.c:973
+#12 0x00007ffff48cb493 in sapi_handle_post (arg=arg@entry=0x7fffffffe0f0) at /home/debian/php-lab/php-8.4.26/main/SAPI.c:164
+#13 0x00007ffff48c7e8b in php_default_treat_data (arg=0, str=<optimized out>, destArray=<optimized out>) at /home/debian/php-lab/php-8.4.26/main/php_variables.c:498
+#14 0x00007ffff48c6a28 in php_auto_globals_create_post (name=0x55555566c9e0) at /home/debian/php-lab/php-8.4.26/main/php_variables.c:818
+#15 0x00007ffff4949da4 in zend_activate_auto_globals () at /home/debian/php-lab/php-8.4.26/Zend/zend_compile.c:2031
+#16 0x00007ffff48c88be in php_hash_environment () at /home/debian/php-lab/php-8.4.26/main/php_variables.c:788
+#17 0x00007ffff48be778 in php_request_startup () at /home/debian/php-lab/php-8.4.26/main/main.c:1873
+#18 0x00007ffff4a1b31a in php_apache_request_ctor (r=r@entry=0x7ffff7b2f0a0, ctx=<optimized out>) at /home/debian/php-lab/php-8.4.26/sapi/apache2handler/sapi_apache2.c:553
+#19 0x00007ffff4a1bc47 in php_handler (r=<optimized out>) at /home/debian/php-lab/php-8.4.26/sapi/apache2handler/sapi_apache2.c:671
+./trial_bins.sh: 第 5 行：902845 已杀死               sudo -n "$@"

