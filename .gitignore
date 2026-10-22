@@ -1,0 +1,11 @@
+.DS_Store
+__pycache__/
+*.pyc
+*.bin
+
+# Official PHP source tree (225MB, analysis only; README says it can be deleted)
+src/php-8.4.26/
+
+# Runtime output of the exploit (proof file / derived libphp offsets)
+out/*
+!out/.gitkeep
